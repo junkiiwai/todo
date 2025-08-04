@@ -6,9 +6,23 @@ const ALLOWED_USERS = [
 
 // GitHubユーザー名を取得（URLパラメータから）
 export const getCurrentUser = (): string | null => {
+  // 複数の方法でURLパラメータを取得
   const urlParams = new URLSearchParams(window.location.search);
   const user = urlParams.get('user');
-  console.log('Current user from URL:', user);
+  
+  // デバッグ情報
+  console.log('Full URL:', window.location.href);
+  console.log('Search params:', window.location.search);
+  console.log('URLSearchParams result:', user);
+  
+  // フォールバック: 直接URLから取得
+  if (!user) {
+    const url = new URL(window.location.href);
+    const fallbackUser = url.searchParams.get('user');
+    console.log('Fallback URL result:', fallbackUser);
+    return fallbackUser;
+  }
+  
   return user;
 };
 
