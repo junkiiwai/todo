@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { CreateTaskRequest, User, Task } from '../types';
+import type { CreateTaskRequest, User, Task } from '../types';
 import { taskAPI, userAPI } from '../utils/api';
 
 interface CreateTaskModalProps {
@@ -75,11 +75,11 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ onClose, onTaskCreate
       newErrors.priority = '優先度は1-5の範囲で入力してください';
     }
 
-    if (formData.estimated_hours < 0) {
+    if ((formData.estimated_hours ?? 0) < 0) {
       newErrors.estimated_hours = '所要時間は0以上で入力してください';
     }
 
-    if (formData.progress < 0 || formData.progress > 100) {
+    if ((formData.progress ?? 0) < 0 || (formData.progress ?? 0) > 100) {
       newErrors.progress = '進捗度は0-100の範囲で入力してください';
     }
 
@@ -107,57 +107,47 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ onClose, onTaskCreate
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium text-gray-900">新規タスク作成</h3>
+    <div className="modal">
+      <div className="modal-content">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3 style={{ margin: 0 }}>新規タスク作成</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}
           >
             <X size={24} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           {/* タスク名 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              タスク名 *
-            </label>
+          <div className="form-group">
+            <label>タスク名 *</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.name ? 'border-red-500' : 'border-gray-300'
-              }`}
+              style={{ borderColor: errors.name ? '#ef4444' : '#d1d5db' }}
             />
-            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+            {errors.name && <p style={{ color: '#ef4444', fontSize: '12px', margin: '5px 0 0 0' }}>{errors.name}</p>}
           </div>
 
           {/* タスク内容 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              タスク内容
-            </label>
+          <div className="form-group">
+            <label>タスク内容</label>
             <textarea
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* 担当者 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              担当者
-            </label>
+          <div className="form-group">
+            <label>担当者</label>
             <select
               value={formData.assignee_id || ''}
               onChange={(e) => handleInputChange('assignee_id', e.target.value ? parseInt(e.target.value) : undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">選択してください</option>
               {users.map((user) => (
@@ -169,16 +159,12 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ onClose, onTaskCreate
           </div>
 
           {/* 優先度 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              優先度 *
-            </label>
+          <div className="form-group">
+            <label>優先度 *</label>
             <select
               value={formData.priority}
               onChange={(e) => handleInputChange('priority', parseInt(e.target.value))}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.priority ? 'border-red-500' : 'border-gray-300'
-              }`}
+              style={{ borderColor: errors.priority ? '#ef4444' : '#d1d5db' }}
             >
               <option value={1}>1 (最高)</option>
               <option value={2}>2 (高)</option>
@@ -186,59 +172,47 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ onClose, onTaskCreate
               <option value={4}>4 (低)</option>
               <option value={5}>5 (最低)</option>
             </select>
-            {errors.priority && <p className="text-red-500 text-sm mt-1">{errors.priority}</p>}
+            {errors.priority && <p style={{ color: '#ef4444', fontSize: '12px', margin: '5px 0 0 0' }}>{errors.priority}</p>}
           </div>
 
           {/* 所要時間 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              所要時間（時間）
-            </label>
+          <div className="form-group">
+            <label>所要時間（時間）</label>
             <input
               type="number"
               min="0"
               step="0.5"
               value={formData.estimated_hours}
               onChange={(e) => handleInputChange('estimated_hours', parseFloat(e.target.value) || 0)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.estimated_hours ? 'border-red-500' : 'border-gray-300'
-              }`}
+              style={{ borderColor: errors.estimated_hours ? '#ef4444' : '#d1d5db' }}
             />
-            {errors.estimated_hours && <p className="text-red-500 text-sm mt-1">{errors.estimated_hours}</p>}
+            {errors.estimated_hours && <p style={{ color: '#ef4444', fontSize: '12px', margin: '5px 0 0 0' }}>{errors.estimated_hours}</p>}
           </div>
 
           {/* 期限 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              期限
-            </label>
+          <div className="form-group">
+            <label>期限</label>
             <input
               type="datetime-local"
               value={formData.deadline}
               onChange={(e) => handleInputChange('deadline', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* 残日数 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              残日数
-            </label>
+          <div className="form-group">
+            <label>残日数</label>
             <input
               type="number"
               min="0"
               value={formData.remaining_days || ''}
               onChange={(e) => handleInputChange('remaining_days', e.target.value ? parseInt(e.target.value) : undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* 進捗度 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              進捗度（%）
-            </label>
+          <div className="form-group">
+            <label>進捗度（%）</label>
             <input
               type="number"
               min="0"
@@ -246,22 +220,17 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ onClose, onTaskCreate
               step="10"
               value={formData.progress}
               onChange={(e) => handleInputChange('progress', parseInt(e.target.value) || 0)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.progress ? 'border-red-500' : 'border-gray-300'
-              }`}
+              style={{ borderColor: errors.progress ? '#ef4444' : '#d1d5db' }}
             />
-            {errors.progress && <p className="text-red-500 text-sm mt-1">{errors.progress}</p>}
+            {errors.progress && <p style={{ color: '#ef4444', fontSize: '12px', margin: '5px 0 0 0' }}>{errors.progress}</p>}
           </div>
 
           {/* 親タスク */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              親タスク
-            </label>
+          <div className="form-group">
+            <label>親タスク</label>
             <select
               value={formData.parent_task_id || ''}
               onChange={(e) => handleInputChange('parent_task_id', e.target.value ? parseInt(e.target.value) : undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">無し（最上位タスク）</option>
               {parentTasks.map((task) => (
@@ -273,18 +242,19 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ onClose, onTaskCreate
           </div>
 
           {/* ボタン */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              style={{ padding: '8px 16px', border: '1px solid #d1d5db', borderRadius: '4px', background: 'white', cursor: 'pointer' }}
             >
               キャンセル
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className="btn btn-primary"
+              style={{ opacity: loading ? 0.5 : 1 }}
             >
               {loading ? '作成中...' : '作成'}
             </button>

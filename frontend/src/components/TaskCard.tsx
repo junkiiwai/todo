@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Task } from '../types';
+import type { Task } from '../types';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { ChevronDown, ChevronRight, MessageSquare, Edit, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, MessageSquare, Edit } from 'lucide-react';
 import TaskMemoModal from './TaskMemoModal';
 import EditTaskModal from './EditTaskModal';
 
@@ -28,99 +28,121 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onTaskUpdated, readonly = fal
 
   const getPriorityColor = (priority: number) => {
     switch (priority) {
-      case 1: return 'bg-red-100 text-red-800';
-      case 2: return 'bg-orange-100 text-orange-800';
-      case 3: return 'bg-yellow-100 text-yellow-800';
-      case 4: return 'bg-blue-100 text-blue-800';
-      case 5: return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 1: return 'priority-1';
+      case 2: return 'priority-2';
+      case 3: return 'priority-3';
+      case 4: return 'priority-4';
+      case 5: return 'priority-5';
+      default: return 'priority-3';
     }
   };
 
   const getProgressColor = (progress: number) => {
-    if (progress === 100) return 'bg-green-500';
-    if (progress >= 80) return 'bg-blue-500';
-    if (progress >= 60) return 'bg-yellow-500';
-    if (progress >= 40) return 'bg-orange-500';
-    return 'bg-red-500';
+    if (progress === 100) return '#10b981';
+    if (progress >= 80) return '#3b82f6';
+    if (progress >= 60) return '#f59e0b';
+    if (progress >= 40) return '#f97316';
+    return '#ef4444';
   };
 
   const hasChildTasks = task.child_tasks && task.child_tasks.length > 0;
 
   return (
     <>
-      <div className={`bg-white shadow rounded-lg border ${task.progress === 100 ? 'opacity-75' : ''}`}>
-        <div className="p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center space-x-3">
+      <div className="task-card" style={{ opacity: task.progress === 100 ? 0.75 : 1 }}>
+        <div style={{ padding: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 {hasChildTasks && (
                   <button
                     onClick={() => setExpanded(!expanded)}
-                    className="text-gray-400 hover:text-gray-600"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af' }}
                   >
                     {expanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                   </button>
                 )}
                 
-                <h3 className={`text-lg font-medium ${task.progress === 100 ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: 500, 
+                  margin: 0,
+                  textDecoration: task.progress === 100 ? 'line-through' : 'none',
+                  color: task.progress === 100 ? '#6b7280' : '#111827'
+                }}>
                   {task.name}
                 </h3>
                 
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                <span className={`priority-badge ${getPriorityColor(task.priority)}`}>
                   優先度{task.priority}
                 </span>
               </div>
 
               {task.description && (
-                <p className="mt-2 text-sm text-gray-600">{task.description}</p>
+                <p style={{ margin: '8px 0', color: '#6b7280' }}>{task.description}</p>
               )}
 
-              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                gap: '16px', 
+                marginTop: '16px',
+                fontSize: '14px'
+              }}>
                 <div>
-                  <span className="text-gray-500">担当者:</span>
-                  <span className="ml-1 font-medium">{task.assignee_name || '未設定'}</span>
+                  <span style={{ color: '#6b7280' }}>担当者:</span>
+                  <span style={{ marginLeft: '4px', fontWeight: 500 }}>{task.assignee_name || '未設定'}</span>
                 </div>
                 
                 <div>
-                  <span className="text-gray-500">所要時間:</span>
-                  <span className="ml-1 font-medium">{task.estimated_hours}時間</span>
+                  <span style={{ color: '#6b7280' }}>所要時間:</span>
+                  <span style={{ marginLeft: '4px', fontWeight: 500 }}>{task.estimated_hours}時間</span>
                 </div>
                 
                 {task.deadline && (
                   <div>
-                    <span className="text-gray-500">期限:</span>
-                    <span className="ml-1 font-medium">{formatDeadline(task.deadline)}</span>
+                    <span style={{ color: '#6b7280' }}>期限:</span>
+                    <span style={{ marginLeft: '4px', fontWeight: 500 }}>{formatDeadline(task.deadline)}</span>
                   </div>
                 )}
                 
                 {task.remaining_days !== undefined && (
                   <div>
-                    <span className="text-gray-500">残日数:</span>
-                    <span className="ml-1 font-medium">{task.remaining_days}日</span>
+                    <span style={{ color: '#6b7280' }}>残日数:</span>
+                    <span style={{ marginLeft: '4px', fontWeight: 500 }}>{task.remaining_days}日</span>
                   </div>
                 )}
               </div>
 
-              <div className="mt-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">進捗度</span>
-                  <span className="text-sm font-medium">{task.progress}%</span>
+              <div style={{ marginTop: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '14px', color: '#6b7280' }}>進捗度</span>
+                  <span style={{ fontSize: '14px', fontWeight: 500 }}>{task.progress}%</span>
                 </div>
-                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                <div className="progress-bar">
                   <div
-                    className={`h-2 rounded-full ${getProgressColor(task.progress)}`}
-                    style={{ width: `${task.progress}%` }}
+                    className="progress-fill"
+                    style={{ 
+                      width: `${task.progress}%`,
+                      backgroundColor: getProgressColor(task.progress)
+                    }}
                   ></div>
                 </div>
               </div>
             </div>
 
             {!readonly && (
-              <div className="flex items-center space-x-2 ml-4">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '16px' }}>
                 <button
                   onClick={() => setShowMemoModal(true)}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+                  style={{ 
+                    padding: '8px', 
+                    background: 'none', 
+                    border: 'none', 
+                    cursor: 'pointer',
+                    color: '#9ca3af',
+                    borderRadius: '50%'
+                  }}
                   title="メモ"
                 >
                   <MessageSquare size={16} />
@@ -128,7 +150,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onTaskUpdated, readonly = fal
                 
                 <button
                   onClick={() => setShowEditModal(true)}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+                  style={{ 
+                    padding: '8px', 
+                    background: 'none', 
+                    border: 'none', 
+                    cursor: 'pointer',
+                    color: '#9ca3af',
+                    borderRadius: '50%'
+                  }}
                   title="編集"
                 >
                   <Edit size={16} />
@@ -140,10 +169,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onTaskUpdated, readonly = fal
 
         {/* 子タスク */}
         {expanded && hasChildTasks && (
-          <div className="border-t border-gray-200 bg-gray-50">
-            <div className="p-4">
-              <h4 className="text-sm font-medium text-gray-700 mb-3">子タスク</h4>
-              <div className="space-y-3">
+          <div style={{ borderTop: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
+            <div style={{ padding: '16px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '12px' }}>子タスク</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {task.child_tasks!.map((childTask) => (
                   <TaskCard
                     key={childTask.id}
