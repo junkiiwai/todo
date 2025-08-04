@@ -7,23 +7,50 @@ const ALLOWED_USERS = [
 // GitHubユーザー名を取得（URLパラメータから）
 export const getCurrentUser = (): string | null => {
   // 複数の方法でURLパラメータを取得
+  console.log('=== URL Parameter Debug ===');
+  console.log('window.location.href:', window.location.href);
+  console.log('window.location.search:', window.location.search);
+  console.log('window.location.pathname:', window.location.pathname);
+  
+  // 方法1: URLSearchParams
   const urlParams = new URLSearchParams(window.location.search);
-  const user = urlParams.get('user');
+  const user1 = urlParams.get('user');
+  console.log('Method 1 (URLSearchParams):', user1);
   
-  // デバッグ情報
-  console.log('Full URL:', window.location.href);
-  console.log('Search params:', window.location.search);
-  console.log('URLSearchParams result:', user);
-  
-  // フォールバック: 直接URLから取得
-  if (!user) {
+  // 方法2: 直接URLオブジェクト
+  let user2 = null;
+  try {
     const url = new URL(window.location.href);
-    const fallbackUser = url.searchParams.get('user');
-    console.log('Fallback URL result:', fallbackUser);
-    return fallbackUser;
+    user2 = url.searchParams.get('user');
+    console.log('Method 2 (URL object):', user2);
+  } catch (error) {
+    console.log('Method 2 error:', error);
   }
   
-  return user;
+  // 方法3: 正規表現
+  const match = window.location.search.match(/[?&]user=([^&]*)/);
+  const user3 = match ? match[1] : null;
+  console.log('Method 3 (regex):', user3);
+  
+  // 方法4: 手動パース
+  const search = window.location.search.substring(1);
+  const params = search.split('&');
+  let user4 = null;
+  for (const param of params) {
+    const [key, value] = param.split('=');
+    if (key === 'user') {
+      user4 = value;
+      break;
+    }
+  }
+  console.log('Method 4 (manual parse):', user4);
+  
+  // 最初に見つかった値を返す
+  const result = user1 || user2 || user3 || user4;
+  console.log('Final result:', result);
+  console.log('=== End Debug ===');
+  
+  return result;
 };
 
 // アクセス権限をチェック
