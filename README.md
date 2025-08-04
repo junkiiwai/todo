@@ -151,4 +151,4 @@ FRONTEND_URL=http://localhost:5173
 
 ## 🤝 **サポート**
 
-問題や質問がある場合は、リポジトリのIssuesでお知らせください。 
+問題や質問がある場合は、リポジトリのIssuesでお知らせください。 # Trigger deployment
