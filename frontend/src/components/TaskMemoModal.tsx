@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Send } from 'lucide-react';
 import { Task, TaskMemo, CreateMemoRequest } from '../types';
-import { taskApi, memoApi } from '../utils/api';
+import { memoApi } from '../utils/api';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 

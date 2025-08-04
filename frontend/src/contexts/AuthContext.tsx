@@ -50,9 +50,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (code: string) => {
     try {
       const response = await authApi.githubAuth(code);
-      localStorage.setItem('access_token', response.access_token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      setUser(response.user);
+      const authData = response.data;
+      localStorage.setItem('access_token', authData.access_token);
+      localStorage.setItem('user', JSON.stringify(authData.user));
+      setUser(authData.user);
     } catch (error) {
       console.error('ログインエラー:', error);
       throw error;
