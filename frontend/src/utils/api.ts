@@ -1,17 +1,21 @@
 import axios from 'axios';
-import type { 
-  Task, 
-  User, 
-  CreateTaskRequest, 
-  UpdateTaskRequest, 
-  CreateUserRequest, 
+import type {
+  Task,
+  User,
+  CreateTaskRequest,
+  UpdateTaskRequest,
+  CreateUserRequest,
   CreateMemoRequest,
   AuthResponse,
   CalculatedProgress
 } from '../types';
 
+// 一時的にAPI URLを設定（後で環境変数に変更）
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
+console.log('API_BASE_URL:', API_BASE_URL);
+
+// Axiosインスタンスを作成
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -19,103 +23,83 @@ const api = axios.create({
   },
 });
 
-// リクエストインターセプターでトークンを追加
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// リクエストインターセプター
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
-// レスポンスインターセプターでエラーハンドリング
+// レスポンスインターセプター
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
+      localStorage.removeItem('token');
       window.location.href = '/login';
     }
     return Promise.reject(error);
   }
 );
 
-// 認証関連
-export const authAPI = {
-  githubLogin: async (code: string): Promise<AuthResponse> => {
-    const response = await api.post('/auth/github', { code });
-    return response.data;
-  },
+// タスク関連のAPI
+export const taskApi = {
+  // タスク一覧を取得
+  getTasks: () => api.get<Task[]>('/tasks'),
   
-  getCurrentUser: async (): Promise<User> => {
-    const response = await api.get('/auth/me');
-    return response.data;
-  },
+  // タスクを作成
+  createTask: (data: CreateTaskRequest) => api.post<Task>('/tasks', data),
+  
+  // タスクを更新
+  updateTask: (id: number, data: UpdateTaskRequest) => api.put<Task>(`/tasks/${id}`, data),
+  
+  // タスクを削除
+  deleteTask: (id: number) => api.delete(`/tasks/${id}`),
+  
+  // タスクの進捗を計算
+  calculateProgress: (id: number) => api.get<CalculatedProgress>(`/tasks/${id}/progress`),
 };
 
-// タスク関連
-export const taskAPI = {
-  getTasks: async (): Promise<Task[]> => {
-    const response = await api.get('/tasks');
-    return response.data;
-  },
+// ユーザー関連のAPI
+export const userApi = {
+  // ユーザー一覧を取得
+  getUsers: () => api.get<User[]>('/users'),
   
-  getCompletedTasks: async (): Promise<Task[]> => {
-    const response = await api.get('/tasks/completed');
-    return response.data;
-  },
+  // ユーザーを作成
+  createUser: (data: CreateUserRequest) => api.post<User>('/users', data),
   
-  createTask: async (taskData: CreateTaskRequest): Promise<Task> => {
-    const response = await api.post('/tasks', taskData);
-    return response.data;
-  },
+  // ユーザーを更新
+  updateUser: (id: number, data: CreateUserRequest) => api.put<User>(`/users/${id}`, data),
   
-  updateTask: async (id: number, taskData: UpdateTaskRequest): Promise<Task> => {
-    const response = await api.put(`/tasks/${id}`, taskData);
-    return response.data;
-  },
-  
-  deleteTask: async (id: number): Promise<void> => {
-    await api.delete(`/tasks/${id}`);
-  },
-  
-  getTaskMemos: async (taskId: number) => {
-    const response = await api.get(`/tasks/${taskId}/memos`);
-    return response.data;
-  },
-  
-  createTaskMemo: async (taskId: number, memoData: CreateMemoRequest) => {
-    const response = await api.post(`/tasks/${taskId}/memos`, memoData);
-    return response.data;
-  },
-  
-  getCalculatedProgress: async (taskId: number): Promise<CalculatedProgress> => {
-    const response = await api.get(`/tasks/${taskId}/calculated-progress`);
-    return response.data;
-  },
+  // ユーザーを削除
+  deleteUser: (id: number) => api.delete(`/users/${id}`),
 };
 
-// ユーザー関連
-export const userAPI = {
-  getUsers: async (): Promise<User[]> => {
-    const response = await api.get('/users');
-    return response.data;
-  },
+// メモ関連のAPI
+export const memoApi = {
+  // タスクのメモを取得
+  getMemos: (taskId: number) => api.get(`/tasks/${taskId}/memos`),
   
-  createUser: async (userData: CreateUserRequest): Promise<User> => {
-    const response = await api.post('/users', userData);
-    return response.data;
-  },
+  // メモを作成
+  createMemo: (taskId: number, data: CreateMemoRequest) => api.post(`/tasks/${taskId}/memos`, data),
+};
+
+// 認証関連のAPI
+export const authApi = {
+  // GitHub OAuth認証
+  githubAuth: (code: string) => api.post<AuthResponse>('/auth/github', { code }),
   
-  updateUser: async (id: number, displayName: string): Promise<User> => {
-    const response = await api.put(`/users/${id}`, { display_name: displayName });
-    return response.data;
-  },
-  
-  deleteUser: async (id: number): Promise<void> => {
-    await api.delete(`/users/${id}`);
-  },
+  // 現在のユーザー情報を取得
+  getMe: () => api.get<User>('/auth/me'),
 };
 
 export default api; 
