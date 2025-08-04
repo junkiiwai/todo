@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Send } from 'lucide-react';
 import { Task, TaskMemo, CreateMemoRequest } from '../types';
-import { taskAPI } from '../utils/api';
+import { taskApi, memoApi } from '../utils/api';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 
@@ -24,7 +24,8 @@ const TaskMemoModal: React.FC<TaskMemoModalProps> = ({ task, onClose, onMemoCrea
   const loadMemos = async () => {
     try {
       setMemosLoading(true);
-      const memosData = await taskAPI.getTaskMemos(task.id);
+      const response = await memoApi.getMemos(task.id);
+      const memosData = response.data;
       setMemos(memosData);
     } catch (error) {
       console.error('メモ読み込みエラー:', error);
@@ -46,7 +47,7 @@ const TaskMemoModal: React.FC<TaskMemoModalProps> = ({ task, onClose, onMemoCrea
         content: newMemo.trim()
       };
       
-      await taskAPI.createTaskMemo(task.id, memoData);
+      await memoApi.createMemo(task.id, memoData);
       setNewMemo('');
       await loadMemos();
       onMemoCreated();

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { CreateTaskRequest, User, Task } from '../types';
-import { taskAPI, userAPI } from '../utils/api';
+import { taskApi, userApi } from '../utils/api';
 
 interface CreateTaskModalProps {
   onClose: () => void;
@@ -33,7 +33,8 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ onClose, onTaskCreate
 
   const loadUsers = async () => {
     try {
-      const usersData = await userAPI.getUsers();
+      const response = await userApi.getUsers();
+      const usersData = response.data;
       setUsers(usersData);
     } catch (error) {
       console.error('ユーザー読み込みエラー:', error);
@@ -42,7 +43,8 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ onClose, onTaskCreate
 
   const loadParentTasks = async () => {
     try {
-      const tasks = await taskAPI.getTasks();
+      const response = await taskApi.getTasks();
+      const tasks = response.data;
       setParentTasks(tasks);
     } catch (error) {
       console.error('親タスク読み込みエラー:', error);
@@ -96,7 +98,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ onClose, onTaskCreate
 
     setLoading(true);
     try {
-      await taskAPI.createTask(formData);
+      await taskApi.createTask(formData);
       onTaskCreated();
     } catch (error) {
       console.error('タスク作成エラー:', error);

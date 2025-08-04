@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { UpdateTaskRequest, User, Task } from '../types';
-import { taskAPI, userAPI } from '../utils/api';
+import { taskApi, userApi } from '../utils/api';
 
 interface EditTaskModalProps {
   task: Task;
@@ -35,7 +35,8 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, onClose, onTaskUpda
 
   const loadUsers = async () => {
     try {
-      const usersData = await userAPI.getUsers();
+      const response = await userApi.getUsers();
+      const usersData = response.data;
       setUsers(usersData);
     } catch (error) {
       console.error('ユーザー読み込みエラー:', error);
@@ -44,7 +45,8 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, onClose, onTaskUpda
 
   const loadParentTasks = async () => {
     try {
-      const tasks = await taskAPI.getTasks();
+      const response = await taskApi.getTasks();
+      const tasks = response.data;
       // 自分自身を除外
       const filteredTasks = tasks.filter(t => t.id !== task.id);
       setParentTasks(filteredTasks);
@@ -53,7 +55,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, onClose, onTaskUpda
     }
   };
 
-  const handleInputChange = (field: keyof UpdateTaskRequest, value: any) => {
+  const handleInputChange = (field: keyof UpdateTaskRequest, value: unknown) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -100,7 +102,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, onClose, onTaskUpda
 
     setLoading(true);
     try {
-      await taskAPI.updateTask(task.id, formData);
+      await taskApi.updateTask(task.id, formData);
       onTaskUpdated();
       onClose();
     } catch (error) {
@@ -118,7 +120,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, onClose, onTaskUpda
 
     setLoading(true);
     try {
-      await taskAPI.deleteTask(task.id);
+      await taskApi.deleteTask(task.id);
       onTaskUpdated();
       onClose();
     } catch (error) {

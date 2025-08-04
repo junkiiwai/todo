@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '../types';
-import { authAPI } from '../utils/api';
+import { authApi } from '../utils/api';
 
 interface AuthContextType {
   user: User | null;
@@ -32,7 +32,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const token = localStorage.getItem('access_token');
       if (token) {
         try {
-          const currentUser = await authAPI.getCurrentUser();
+          const response = await authApi.getMe();
+      const currentUser = response.data;
           setUser(currentUser);
         } catch (error) {
           console.error('認証エラー:', error);
@@ -48,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (code: string) => {
     try {
-      const response = await authAPI.githubLogin(code);
+      const response = await authApi.githubAuth(code);
       localStorage.setItem('access_token', response.access_token);
       localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);

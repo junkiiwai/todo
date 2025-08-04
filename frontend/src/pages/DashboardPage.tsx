@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Task } from '../types';
-import { taskAPI } from '../utils/api';
+import { taskApi } from '../utils/api';
 import TaskList from '../components/TaskList';
 import CreateTaskModal from '../components/CreateTaskModal';
 import { Plus } from 'lucide-react';
@@ -22,11 +22,13 @@ const DashboardPage: React.FC = () => {
     try {
       setLoading(true);
       const [active, completed] = await Promise.all([
-        taskAPI.getTasks(),
-        taskAPI.getCompletedTasks()
+              taskApi.getTasks(),
+      taskApi.getTasks() // TODO: 完了タスクの取得APIを実装
       ]);
-      setActiveTasks(active);
-      setCompletedTasks(completed);
+              const response1 = await active;
+        const response2 = await completed;
+        setActiveTasks(response1.data);
+        setCompletedTasks(response2.data);
     } catch (error) {
       console.error('タスク読み込みエラー:', error);
     } finally {
