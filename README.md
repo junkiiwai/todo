@@ -1,134 +1,154 @@
 # タスク管理ツール
 
-GitHub OAuth認証を使用したタスク管理ツールです。指定されたGitHub collaboratorのみがアクセスできます。
+GitHub Pagesでホストされたプライベートタスク管理ツールです。
 
-## 機能
+## 🚀 **アクセス方法**
 
-- GitHub OAuth認証
-- タスクの階層化（親タスク・子タスク）
-- プロジェクト単位でのタスク管理
-- 進捗度の自動計算
-- メモ機能（履歴付き）
-- 担当者管理
-- 優先度・期限管理
+### **1. 管理者による招待**
+1. このリポジトリのcollaboratorとして招待される
+2. 招待メールを受け取る
+3. 招待を承認する
 
-## 技術スタック
+### **2. アプリケーションへのアクセス**
+以下のURLでアクセスしてください：
+```
+https://junkiiwai.github.io/todo/?user=YOUR_GITHUB_USERNAME
+```
 
-### フロントエンド
+**例:**
+```
+https://junkiiwai.github.io/todo/?user=junkiiwai
+```
+
+### **3. アクセス制限**
+- リポジトリのcollaboratorのみアクセス可能
+- URLパラメータ `?user=YOUR_GITHUB_USERNAME` が必要
+- 権限のないユーザーはアクセス拒否されます
+
+## 🛠 **技術スタック**
+
+### **Frontend**
 - React 18
 - TypeScript
 - Vite
-- Tailwind CSS
 - React Router
 - Axios
-- Lucide React（アイコン）
-- date-fns（日付処理）
+- Lucide React (icons)
+- date-fns (date handling)
+- カスタムCSS
 
-### バックエンド
+### **Backend**
 - Node.js
 - Express
 - TypeScript
-- SQLite
-- JWT認証
+- SQLite (database)
+- JWT authentication
 - GitHub OAuth
 
-## セットアップ
+## 📁 **プロジェクト構造**
 
-### 1. リポジトリのクローン
-```bash
-git clone <repository-url>
-cd todo
+```
+todo/
+├── frontend/          # React フロントエンド
+│   ├── src/
+│   │   ├── components/    # React コンポーネント
+│   │   ├── pages/         # ページコンポーネント
+│   │   ├── contexts/      # React Context
+│   │   ├── utils/         # ユーティリティ
+│   │   └── types/         # TypeScript型定義
+│   └── dist/          # ビルド出力
+├── backend/           # Node.js バックエンド
+│   ├── src/
+│   │   ├── routes/        # API ルート
+│   │   ├── models/        # データベースモデル
+│   │   ├── middleware/    # ミドルウェア
+│   │   └── types/         # TypeScript型定義
+│   └── data/          # SQLite データベース
+└── .github/          # GitHub Actions
+    └── workflows/     # デプロイワークフロー
 ```
 
-### 2. 依存関係のインストール
+## 🔧 **開発環境のセットアップ**
+
+### **前提条件**
+- Node.js 18+
+- npm
+
+### **インストール**
 ```bash
+# 依存関係をインストール
 npm run install:all
+
+# 開発サーバーを起動
+npm run dev
 ```
 
-### 3. 環境変数の設定
-
-#### フロントエンド
-```bash
-cd frontend
-cp env.example .env
-```
-
-`.env`ファイルを編集：
-```
+### **環境変数**
+#### **Frontend (.env)**
+```env
 VITE_API_URL=http://localhost:3001/api
 VITE_GITHUB_CLIENT_ID=your_github_client_id
 ```
 
-#### バックエンド
-```bash
-cd backend
-cp env.example .env
-```
-
-`.env`ファイルを編集：
-```
+#### **Backend (.env)**
+```env
 PORT=3001
-JWT_SECRET=your_jwt_secret_key
+JWT_SECRET=your_jwt_secret
 GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
 FRONTEND_URL=http://localhost:5173
 ```
 
-### 4. GitHub OAuthアプリケーションの設定
+## 🚀 **デプロイ**
 
-1. GitHubで新しいOAuthアプリケーションを作成
-2. Authorization callback URLを`http://localhost:5173/login`に設定
-3. Client IDとClient Secretを環境変数に設定
+### **GitHub Pages**
+1. リポジトリをパブリックに設定
+2. Settings → Pages → Source: GitHub Actions
+3. 自動デプロイが実行される
 
-### 5. 開発サーバーの起動
-```bash
-# ルートディレクトリで実行
-npm run dev
-```
+### **バックエンド (Railway推奨)**
+1. Railwayにサインアップ
+2. GitHubリポジトリと連携
+3. 環境変数を設定
+4. デプロイ実行
 
-フロントエンド: http://localhost:5173
-バックエンド: http://localhost:3001
+## 📋 **機能**
 
-## 使用方法
+### **タスク管理**
+- ✅ タスクの作成・編集・削除
+- ✅ 階層化されたタスク（親タスク・子タスク）
+- ✅ 優先度設定（1-5段階）
+- ✅ 進捗管理（0-100%）
+- ✅ 期限設定
+- ✅ 所要時間の見積もり
 
-### 1. ログイン
-- GitHubアカウントでログイン
-- 指定されたcollaboratorのみアクセス可能
+### **プロジェクト管理**
+- ✅ プロジェクト単位でのタスク表示
+- ✅ 完了プロジェクトの自動移動
+- ✅ 進捗の自動計算（子タスクの重み付き平均）
 
-### 2. タスク作成
-- 「新規作成」ボタンでタスクを作成
-- 以下の項目を設定可能：
-  - タスク名
-  - タスク内容
-  - 担当者
-  - 優先度（1-5）
-  - 所要時間
-  - 期限
-  - 残日数
-  - 進捗度（0-100%）
-  - 親タスク
+### **ユーザー管理**
+- ✅ GitHub OAuth認証
+- ✅ 担当者設定
+- ✅ メモ機能（履歴付き）
 
-### 3. タスク管理
-- プロジェクト（最上位タスク）とその子タスクを表示
-- 進捗度100%で完了タスクに自動移動
-- メモ機能で現状・課題を記録
+### **UI/UX**
+- ✅ レスポンシブデザイン
+- ✅ モダンなカードレイアウト
+- ✅ インタラクティブな要素
+- ✅ アクセシビリティ対応
 
-### 4. 自動計算機能
-- 子タスクを持つタスクの所要時間は子タスクの合計
-- 進捗度は子タスクの重み付き平均で自動計算
+## 🔒 **セキュリティ**
 
-## デプロイ
+- GitHub OAuthによる認証
+- JWTトークンによるセッション管理
+- アクセス制限（collaboratorのみ）
+- 環境変数による機密情報管理
 
-### Vercel（フロントエンド）
-1. Vercelにプロジェクトを接続
-2. 環境変数を設定
-3. ビルドコマンド: `npm run build:frontend`
+## 📝 **ライセンス**
 
-### Railway（バックエンド）
-1. Railwayにプロジェクトを接続
-2. 環境変数を設定
-3. ビルドコマンド: `npm run build:backend`
+このプロジェクトはプライベート用途で作成されています。
 
-## ライセンス
+## 🤝 **サポート**
 
-MIT License 
+問題や質問がある場合は、リポジトリのIssuesでお知らせください。 

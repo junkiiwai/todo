@@ -1,46 +1,49 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import { checkAccess, handleAccessDenied } from './utils/accessControl';
 
-// 認証が必要なルートのラッパーコンポーネント
+// アクセス制限付きのルートコンポーネント
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
+  if (!checkAccess()) {
+    handleAccessDenied();
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">読み込み中...</p>
-        </div>
+      <div style={{ 
+        padding: '20px', 
+        textAlign: 'center',
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        <h2>アクセス制限</h2>
+        <p>このアプリケーションにアクセスするには、適切な権限が必要です。</p>
+        <p>管理者に連絡して、collaboratorとして招待してもらってください。</p>
       </div>
     );
   }
 
-  return user ? <>{children}</> : <Navigate to="/login" />;
+  return <>{children}</>;
 };
 
-const App: React.FC = () => {
+function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <BrowserRouter>
+      <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/"
+          <Route 
+            path="/" 
             element={
               <PrivateRoute>
                 <DashboardPage />
               </PrivateRoute>
-            }
+            } 
           />
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
-};
+}
 
 export default App;
